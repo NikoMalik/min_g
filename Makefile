@@ -5,7 +5,7 @@ test:
 	@zig build test  
 
 try: fast
-	@./zig-out/bin/justty
+	@./zig-out/bin/ghostty 
 	
 
 debug:
@@ -21,4 +21,4 @@ prof: clean debug run
 
 
 run:
-	@./zig-out/bin/justty
+	@./zig-out/bin/ghostty
