@@ -45,13 +45,6 @@ pub const GlobalState = struct {
 
     /// Initialize the global state.
     pub fn init(self: *GlobalState) !void {
-        // const start = try std.time.Instant.now();
-        // const start_micro = std.time.microTimestamp();
-        // defer {
-        //     const end = std.time.Instant.now() catch unreachable;
-        //     // "[updateFrame critical time] <START us>\t<TIME_TAKEN us>"
-        //     std.log.err("[global init time] start={}us duration={}ns", .{ start_micro, end.since(start) / std.time.ns_per_us });
-        // }
 
         // Initialize ourself to nothing so we don't have any extra state.
         // IMPORTANT: this MUST be initialized before any log output because
@@ -72,7 +65,7 @@ pub const GlobalState = struct {
             // can get easy memory leak detection in debug modes.
             if (builtin.link_libc) {
                 if (switch (builtin.mode) {
-                    .ReleaseSafe, .ReleaseFast => true,
+                    .ReleaseSafe, .ReleaseFast, .ReleaseSmall => true,
 
                     // We also use it if we can detect we're running under
                     // Valgrind since Valgrind only instruments the C allocator
@@ -163,7 +156,7 @@ pub const GlobalState = struct {
         try internal_os.ensureLocale(self.alloc);
 
         // Initialize glslang for shader compilation
-        try glslang.init();
+        // try glslang.init();
 
         // Initialize oniguruma for regex
         try oni.init(&.{oni.Encoding.utf8});

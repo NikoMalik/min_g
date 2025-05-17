@@ -3,9 +3,9 @@ const fs = std.fs;
 
 /// Generates a compressed file of all the ghostty frames
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const alloc = std.heap.c_allocator;
 
-    var arg_iter = try std.process.argsWithAllocator(gpa.allocator());
+    var arg_iter = try std.process.argsWithAllocator(alloc);
     // Skip the exe name
     _ = arg_iter.skip();
 
@@ -17,7 +17,7 @@ pub fn main() !void {
     const compressed_file = try out_dir.createFile(fs.path.basename(output_path), .{});
 
     // Join the frames with a null byte. We'll split on this later
-    const all_frames = try std.mem.join(gpa.allocator(), "\x01", &frames);
+    const all_frames = try std.mem.join(alloc, "\x01", &frames);
     var fbs = std.io.fixedBufferStream(all_frames);
 
     const reader = fbs.reader();

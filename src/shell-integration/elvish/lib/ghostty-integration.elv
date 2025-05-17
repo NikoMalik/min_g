@@ -76,7 +76,7 @@
 
   fn report-pwd {
     use platform
-    printf "\e]7;file://%s%s\a" platform:hostname $pwd
+    printf "\e]7;kitty-shell-cwd://%s%s\a" (platform:hostname) $pwd
   }
 
   fn sudo-with-terminfo {|@args|

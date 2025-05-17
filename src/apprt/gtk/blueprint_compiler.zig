@@ -5,8 +5,7 @@ pub const c = @cImport({
 });
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const alloc = gpa.allocator();
+    const alloc = std.heap.c_allocator;
 
     var it = try std.process.argsWithAllocator(alloc);
     defer it.deinit();

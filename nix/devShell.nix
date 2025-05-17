@@ -57,6 +57,7 @@
   pandoc,
   hyperfine,
   typos,
+  uv,
   wayland,
   wayland-scanner,
   wayland-protocols,
@@ -108,6 +109,9 @@ in
 
         # Localization
         gettext
+
+        # CI
+        uv
 
         # We need these GTK-related deps on all platform so we can build
         # dist tarballs.

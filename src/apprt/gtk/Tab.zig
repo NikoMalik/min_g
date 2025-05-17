@@ -74,7 +74,7 @@ pub fn init(self: *Tab, window: *Window, parent_: ?*CoreSurface) !void {
         .parent = parent_,
     });
     errdefer surface.unref();
-    surface.container = .{ .tab_ = self };
+    // surface.container = .{ .tab_ = self };
     self.elem = .{ .surface = surface };
 
     // Add Surface to the Tab
@@ -137,7 +137,6 @@ pub fn remove(self: *Tab) void {
 fn needsConfirm(elem: Surface.Container.Elem) bool {
     return switch (elem) {
         .surface => |s| s.core_surface.needsConfirmQuit(),
-        .split => |s| needsConfirm(s.top_left) or needsConfirm(s.bottom_right),
     };
 }
 
@@ -148,16 +147,6 @@ pub fn closeWithConfirmation(tab: *Tab) void {
             s.core_surface.needsConfirmQuit(),
             .{ .tab = tab },
         ),
-        .split => |s| {
-            if (!needsConfirm(s.top_left) and !needsConfirm(s.bottom_right)) {
-                tab.remove();
-                return;
-            }
-
-            CloseDialog.show(.{ .tab = tab }) catch |err| {
-                log.err("failed to open close dialog={}", .{err});
-            };
-        },
     }
 }
 

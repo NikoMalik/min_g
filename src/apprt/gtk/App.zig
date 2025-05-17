@@ -40,7 +40,7 @@ const Window = @import("Window.zig");
 const ConfigErrorsDialog = @import("ConfigErrorsDialog.zig");
 const ClipboardConfirmationWindow = @import("ClipboardConfirmationWindow.zig");
 const CloseDialog = @import("CloseDialog.zig");
-const Split = @import("Split.zig");
+// const Split = @import("Split.zig");
 const inspector = @import("inspector.zig");
 const key = @import("key.zig");
 const winprotopkg = @import("winproto.zig");
@@ -456,14 +456,14 @@ pub fn performAction(
         .close_window => return try self.closeWindow(target),
         .toggle_maximize => self.toggleMaximize(target),
         .toggle_fullscreen => self.toggleFullscreen(target, value),
-        .new_tab => try self.newTab(target),
-        .close_tab => return try self.closeTab(target),
-        .goto_tab => return self.gotoTab(target, value),
-        .move_tab => self.moveTab(target, value),
-        .new_split => try self.newSplit(target, value),
-        .resize_split => self.resizeSplit(target, value),
-        .equalize_splits => self.equalizeSplits(target),
-        .goto_split => return self.gotoSplit(target, value),
+        // .new_tab => try self.newTab(target),
+        // .close_tab => return try self.closeTab(target),
+        // .goto_tab => return self.gotoTab(target, value),
+        // .move_tab => self.moveTab(target, value),
+        // .new_split => try self.newSplit(target, value),
+        // .resize_split => self.resizeSplit(target, value),
+        // .equalize_splits => self.equalizeSplits(target),
+        // .goto_split => return self.gotoSplit(target, value),
         .open_config => try configpkg.edit.open(self.core_app.alloc),
         .config_change => self.configChange(target, value.config),
         .reload_config => try self.reloadConfig(target, value),
@@ -478,24 +478,25 @@ pub fn performAction(
         .mouse_shape => try self.setMouseShape(target, value),
         .mouse_over_link => self.setMouseOverLink(target, value),
         .toggle_tab_overview => self.toggleTabOverview(target),
-        .toggle_split_zoom => self.toggleSplitZoom(target),
+        // .toggle_split_zoom => self.toggleSplitZoom(target),
         .toggle_window_decorations => self.toggleWindowDecorations(target),
         .quit_timer => self.quitTimer(value),
         .prompt_title => try self.promptTitle(target),
         .toggle_quick_terminal => return try self.toggleQuickTerminal(),
         .secure_input => self.setSecureInput(target, value),
+        .ring_bell => try self.ringBell(target),
 
-        // Unimplemented
-        .close_all_windows,
-        .toggle_visibility,
-        .cell_size,
-        .key_sequence,
-        .render_inspector,
-        .renderer_health,
-        .color_change,
-        .reset_window_size,
-        => {
-            log.warn("unimplemented action={}", .{action});
+        // // Unimplemented
+        // .close_all_windows,
+        // .toggle_visibility,
+        // .cell_size,
+        // .key_sequence,
+        // .render_inspector,
+        // .renderer_health,
+        // .color_change,
+        // .reset_window_size,
+        else => {
+            // log.warn("unimplemented action={}", .{action});
             return false;
         },
     }
@@ -505,147 +506,147 @@ pub fn performAction(
     return true;
 }
 
-fn newTab(_: *App, target: apprt.Target) !void {
-    switch (target) {
-        .app => {},
-        .surface => |v| {
-            const window = v.rt_surface.container.window() orelse {
-                log.info(
-                    "new_tab invalid for container={s}",
-                    .{@tagName(v.rt_surface.container)},
-                );
-                return;
-            };
+// fn newTab(_: *App, target: apprt.Target) !void {
+//     switch (target) {
+//         .app => {},
+//         .surface => |v| {
+//             const window = v.rt_surface.container.window() orelse {
+//                 log.info(
+//                     "new_tab invalid for container={s}",
+//                     .{@tagName(v.rt_surface.container)},
+//                 );
+//                 return;
+//             };
 
-            try window.newTab(v);
-        },
-    }
-}
+//             try window.newTab(v);
+//         },
+//     }
+// }
 
-fn closeTab(_: *App, target: apprt.Target) !bool {
-    switch (target) {
-        .app => return false,
-        .surface => |v| {
-            const tab = v.rt_surface.container.tab() orelse {
-                log.info(
-                    "close_tab invalid for container={s}",
-                    .{@tagName(v.rt_surface.container)},
-                );
-                return false;
-            };
+// fn closeTab(_: *App, target: apprt.Target) !bool {
+//     switch (target) {
+//         .app => return false,
+//         .surface => |v| {
+//             const tab = v.rt_surface.container.tab() orelse {
+//                 log.info(
+//                     "close_tab invalid for container={s}",
+//                     .{@tagName(v.rt_surface.container)},
+//                 );
+//                 return false;
+//             };
 
-            tab.closeWithConfirmation();
-            return true;
-        },
-    }
-}
+//             tab.closeWithConfirmation();
+//             return true;
+//         },
+//     }
+// }
 
-fn gotoTab(_: *App, target: apprt.Target, tab: apprt.action.GotoTab) bool {
-    switch (target) {
-        .app => return false,
-        .surface => |v| {
-            const window = v.rt_surface.container.window() orelse {
-                log.info(
-                    "gotoTab invalid for container={s}",
-                    .{@tagName(v.rt_surface.container)},
-                );
-                return false;
-            };
+// fn gotoTab(_: *App, target: apprt.Target, tab: apprt.action.GotoTab) bool {
+//     switch (target) {
+//         .app => return false,
+//         .surface => |v| {
+//             const window = v.rt_surface.container.window() orelse {
+//                 log.info(
+//                     "gotoTab invalid for container={s}",
+//                     .{@tagName(v.rt_surface.container)},
+//                 );
+//                 return false;
+//             };
 
-            return switch (tab) {
-                .previous => window.gotoPreviousTab(v.rt_surface),
-                .next => window.gotoNextTab(v.rt_surface),
-                .last => window.gotoLastTab(),
-                else => window.gotoTab(@intCast(@intFromEnum(tab))),
-            };
-        },
-    }
-}
+//             return switch (tab) {
+//                 .previous => window.gotoPreviousTab(v.rt_surface),
+//                 .next => window.gotoNextTab(v.rt_surface),
+//                 .last => window.gotoLastTab(),
+//                 else => window.gotoTab(@intCast(@intFromEnum(tab))),
+//             };
+//         },
+//     }
+// }
 
-fn moveTab(_: *App, target: apprt.Target, move_tab: apprt.action.MoveTab) void {
-    switch (target) {
-        .app => {},
-        .surface => |v| {
-            const window = v.rt_surface.container.window() orelse {
-                log.info(
-                    "moveTab invalid for container={s}",
-                    .{@tagName(v.rt_surface.container)},
-                );
-                return;
-            };
+// fn moveTab(_: *App, target: apprt.Target, move_tab: apprt.action.MoveTab) void {
+//     switch (target) {
+//         .app => {},
+//         .surface => |v| {
+//             const window = v.rt_surface.container.window() orelse {
+//                 log.info(
+//                     "moveTab invalid for container={s}",
+//                     .{@tagName(v.rt_surface.container)},
+//                 );
+//                 return;
+//             };
 
-            window.moveTab(v.rt_surface, @intCast(move_tab.amount));
-        },
-    }
-}
+//             window.moveTab(v.rt_surface, @intCast(move_tab.amount));
+//         },
+//     }
+// }
 
-fn newSplit(
-    self: *App,
-    target: apprt.Target,
-    direction: apprt.action.SplitDirection,
-) !void {
-    switch (target) {
-        .app => {},
-        .surface => |v| {
-            const alloc = self.core_app.alloc;
-            _ = try Split.create(alloc, v.rt_surface, direction);
-        },
-    }
-}
+// fn newSplit(
+//     self: *App,
+//     target: apprt.Target,
+//     direction: apprt.action.SplitDirection,
+// ) !void {
+//     switch (target) {
+//         .app => {},
+//         .surface => |v| {
+//             const alloc = self.core_app.alloc;
+//             _ = try Split.create(alloc, v.rt_surface, direction);
+//         },
+//     }
+// }
 
-fn equalizeSplits(_: *App, target: apprt.Target) void {
-    switch (target) {
-        .app => {},
-        .surface => |v| {
-            const tab = v.rt_surface.container.tab() orelse return;
-            const top_split = switch (tab.elem) {
-                .split => |s| s,
-                else => return,
-            };
-            _ = top_split.equalize();
-        },
-    }
-}
+// fn equalizeSplits(_: *App, target: apprt.Target) void {
+//     switch (target) {
+//         .app => {},
+//         .surface => |v| {
+//             const tab = v.rt_surface.container.tab() orelse return;
+//             const top_split = switch (tab.elem) {
+//                 .split => |s| s,
+//                 else => return,
+//             };
+//             _ = top_split.equalize();
+//         },
+//     }
+// }
 
-fn gotoSplit(
-    _: *const App,
-    target: apprt.Target,
-    direction: apprt.action.GotoSplit,
-) bool {
-    switch (target) {
-        .app => return false,
-        .surface => |v| {
-            const s = v.rt_surface.container.split() orelse return false;
-            const map = s.directionMap(switch (v.rt_surface.container) {
-                .split_tl => .top_left,
-                .split_br => .bottom_right,
-                .none, .tab_ => unreachable,
-            });
-            const surface_ = map.get(direction) orelse return false;
-            if (surface_) |surface| {
-                surface.grabFocus();
-                return true;
-            }
-            return false;
-        },
-    }
-}
+// fn gotoSplit(
+//     _: *const App,
+//     target: apprt.Target,
+//     direction: apprt.action.GotoSplit,
+// ) bool {
+//     switch (target) {
+//         .app => return false,
+//         .surface => |v| {
+//             const s = v.rt_surface.container.split() orelse return false;
+//             const map = s.directionMap(switch (v.rt_surface.container) {
+//                 .split_tl => .top_left,
+//                 .split_br => .bottom_right,
+//                 .none, .tab_ => unreachable,
+//             });
+//             const surface_ = map.get(direction) orelse return false;
+//             if (surface_) |surface| {
+//                 surface.grabFocus();
+//                 return true;
+//             }
+//             return false;
+//         },
+//     }
+// }
 
-fn resizeSplit(
-    _: *const App,
-    target: apprt.Target,
-    resize: apprt.action.ResizeSplit,
-) void {
-    switch (target) {
-        .app => {},
-        .surface => |v| {
-            const s = v.rt_surface.container.firstSplitWithOrientation(
-                Split.Orientation.fromResizeDirection(resize.direction),
-            ) orelse return;
-            s.moveDivider(resize.direction, resize.amount);
-        },
-    }
-}
+// fn resizeSplit(
+//     _: *const App,
+//     target: apprt.Target,
+//     resize: apprt.action.ResizeSplit,
+// ) void {
+//     switch (target) {
+//         .app => {},
+//         .surface => |v| {
+//             const s = v.rt_surface.container.firstSplitWithOrientation(
+//                 Split.Orientation.fromResizeDirection(resize.direction),
+//             ) orelse return;
+//             s.moveDivider(resize.direction, resize.amount);
+//         },
+//     }
+// }
 
 fn presentTerminal(
     _: *const App,
@@ -724,12 +725,12 @@ fn toggleTabOverview(_: *App, target: apprt.Target) void {
     }
 }
 
-fn toggleSplitZoom(_: *App, target: apprt.Target) void {
-    switch (target) {
-        .app => {},
-        .surface => |surface| surface.rt_surface.toggleSplitZoom(),
-    }
-}
+// fn toggleSplitZoom(_: *App, target: apprt.Target) void {
+//     switch (target) {
+//         .app => {},
+//         .surface => |surface| surface.rt_surface.toggleSplitZoom(),
+//     }
+// }
 
 fn toggleWindowDecorations(
     _: *App,
@@ -773,6 +774,13 @@ fn toggleQuickTerminal(self: *App) !bool {
     try qt.newTab(null);
     qt.present();
     return true;
+}
+
+fn ringBell(_: *App, target: apprt.Target) !void {
+    switch (target) {
+        .app => {},
+        .surface => |surface| try surface.rt_surface.ringBell(),
+    }
 }
 
 fn quitTimer(self: *App, mode: apprt.action.QuitTimer) void {

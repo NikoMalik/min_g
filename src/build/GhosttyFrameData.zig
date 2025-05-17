@@ -17,7 +17,9 @@ pub fn init(b: *std.Build) !GhosttyFrameData {
         .name = "framegen",
         .root_source_file = b.path("src/build/framegen/main.zig"),
         .target = b.graph.host,
+        .link_libc = true,
     });
+    exe.linkLibC();
 
     const run = b.addRunArtifact(exe);
 

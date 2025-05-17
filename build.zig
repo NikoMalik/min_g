@@ -20,17 +20,17 @@ pub fn build(b: *std.Build) !void {
     // Ghostty executable, the actual runnable Ghostty program.
     const exe = try buildpkg.GhosttyExe.init(b, &config, &deps);
 
-    // Ghostty docs
-    const docs = try buildpkg.GhosttyDocs.init(b, &deps);
-    if (config.emit_docs) docs.install();
+    // // Ghostty docs
+    // const docs = try buildpkg.GhosttyDocs.init(b, &deps);
+    // if (config.emit_docs) docs.install();
 
     // Ghostty webdata
     const webdata = try buildpkg.GhosttyWebdata.init(b, &deps);
     if (config.emit_webdata) webdata.install();
 
-    // Ghostty bench tools
-    const bench = try buildpkg.GhosttyBench.init(b, &deps);
-    if (config.emit_bench) bench.install();
+    // // Ghostty bench tools
+    // const bench = try buildpkg.GhosttyBench.init(b, &deps);
+    // if (config.emit_bench) bench.install();
 
     // Ghostty dist tarball
     const dist = try buildpkg.GhosttyDist.init(b, &config);

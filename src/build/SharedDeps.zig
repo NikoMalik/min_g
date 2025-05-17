@@ -709,8 +709,10 @@ pub fn gtkDistResources(
             .name = "generate_gresource_xml",
             .root_source_file = b.path("src/apprt/gtk/gresource.zig"),
             .target = b.graph.host,
+            .link_libc = true,
         });
         const xml_run = b.addRunArtifact(xml_exe);
+        xml_exe.linkLibC();
 
         const blueprint_exe = b.addExecutable(.{
             .name = "gtk_blueprint_compiler",

@@ -7,9 +7,9 @@ const adw = @import("adw");
 const gtk = @import("gtk");
 
 const i18n = @import("../../os/main.zig").i18n;
+const Tab = @import("Tab.zig");
 const App = @import("App.zig");
 const Window = @import("Window.zig");
-const Tab = @import("Tab.zig");
 const Surface = @import("Surface.zig");
 const adwaita = @import("adw_version.zig");
 
@@ -34,8 +34,8 @@ pub fn show(target: Target) !void {
     };
 
     const dialog = switch (DialogType) {
-        adw.AlertDialog => adw.AlertDialog.new(target.title(), target.body()),
-        adw.MessageDialog => adw.MessageDialog.new(dialog_window, target.title(), target.body()),
+        // adw.AlertDialog => adw.AlertDialog.new(target.title(), target.body()),
+        // adw.MessageDialog => adw.MessageDialog.new(dialog_window, target.title(), target.body()),
         else => unreachable,
     };
 
@@ -79,26 +79,26 @@ fn responseCallback(
 pub const Target = union(enum) {
     app: *App,
     window: *Window,
-    tab: *Tab,
     surface: *Surface,
+    tab: *Tab,
 
-    pub fn title(self: Target) [*:0]const u8 {
-        return switch (self) {
-            .app => i18n._("Quit Ghostty?"),
-            .window => i18n._("Close Window?"),
-            .tab => i18n._("Close Tab?"),
-            .surface => i18n._("Close Split?"),
-        };
-    }
+    // pub fn title(self: Target) [*:0]const u8 {
+    //     return switch (self) {
+    //         .app => i18n._("Quit Ghostty?"),
+    //         .window => i18n._("Close Window?"),
+    //         .tab => i18n._("Close Tab?"),
+    //         .surface => i18n._("Close Split?"),
+    //     };
+    // }
 
-    pub fn body(self: Target) [*:0]const u8 {
-        return switch (self) {
-            .app => i18n._("All terminal sessions will be terminated."),
-            .window => i18n._("All terminal sessions in this window will be terminated."),
-            .tab => i18n._("All terminal sessions in this tab will be terminated."),
-            .surface => i18n._("The currently running process in this split will be terminated."),
-        };
-    }
+    // pub fn body(self: Target) [*:0]const u8 {
+    //     return switch (self) {
+    //         .app => i18n._("All terminal sessions will be terminated."),
+    //         .window => i18n._("All terminal sessions in this window will be terminated."),
+    //         .tab => i18n._("All terminal sessions in this tab will be terminated."),
+    //         .surface => i18n._("The currently running process in this split will be terminated."),
+    //     };
+    // }
 
     pub fn dialogWindow(self: Target) ?*gtk.Window {
         return switch (self) {
@@ -134,8 +134,8 @@ pub const Target = union(enum) {
     fn close(self: Target) void {
         switch (self) {
             .app => |v| v.quitNow(),
-            .window => |v| v.window.as(gtk.Window).destroy(),
             .tab => |v| v.remove(),
+            .window => |v| v.window.as(gtk.Window).destroy(),
             .surface => |v| v.container.remove(),
         }
     }

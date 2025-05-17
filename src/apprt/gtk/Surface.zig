@@ -26,7 +26,6 @@ const CoreSurface = @import("../../Surface.zig");
 const internal_os = @import("../../os/main.zig");
 
 const App = @import("App.zig");
-const Split = @import("Split.zig");
 const Tab = @import("Tab.zig");
 const Window = @import("Window.zig");
 const Menu = @import("menu.zig").Menu;
@@ -61,75 +60,40 @@ pub const Container = union(enum) {
     /// Directly attached to a tab. (i.e. no splits)
     tab_: *Tab,
 
-    /// A split within a split hierarchy. The key determines the
-    /// position of the split within the parent split.
-    split_tl: *Elem,
-    split_br: *Elem,
-
-    /// The side of the split.
-    pub const SplitSide = enum { top_left, bottom_right };
-
-    /// Elem is the possible element of any container. A container can
-    /// hold both a surface and a split. Any valid container should
-    /// have an Elem value so that it can be properly used with
-    /// splits.
     pub const Elem = union(enum) {
         /// A surface is a leaf element of the split -- a terminal
         /// surface.
         surface: *Surface,
-
-        /// A split is a nested split within a split. This lets you
-        /// for example have a horizontal split with a vertical split
-        /// on the left side (amongst all other possible
-        /// combinations).
-        split: *Split,
 
         /// Returns the GTK widget to add to the paned for the given
         /// element
         pub fn widget(self: Elem) *gtk.Widget {
             return switch (self) {
                 .surface => |s| s.primaryWidget(),
-                .split => |s| s.paned.as(gtk.Widget),
             };
         }
 
         pub fn containerPtr(self: Elem) *Container {
             return switch (self) {
                 .surface => |s| &s.container,
-                .split => |s| &s.container,
             };
         }
 
-        pub fn deinit(self: Elem, alloc: Allocator) void {
+        pub fn deinit(self: Elem, _: Allocator) void {
             switch (self) {
                 .surface => |s| s.unref(),
-                .split => |s| s.destroy(alloc),
             }
         }
 
         pub fn grabFocus(self: Elem) void {
             switch (self) {
                 .surface => |s| s.grabFocus(),
-                .split => |s| s.grabFocus(),
             }
         }
 
         pub fn equalize(self: Elem) f64 {
             return switch (self) {
                 .surface => 1,
-                .split => |s| s.equalize(),
-            };
-        }
-
-        /// The last surface in this container in the direction specified.
-        /// Direction must be "top_left" or "bottom_right".
-        pub fn deepestSurface(self: Elem, side: SplitSide) ?*Surface {
-            return switch (self) {
-                .surface => |s| s,
-                .split => |s| (switch (side) {
-                    .top_left => s.top_left,
-                    .bottom_right => s.bottom_right,
-                }).deepestSurface(side),
             };
         }
     };
@@ -139,10 +103,6 @@ pub const Container = union(enum) {
         return switch (self) {
             .none => null,
             .tab_ => |v| v.window,
-            .split_tl, .split_br => split: {
-                const s = self.split() orelse break :split null;
-                break :split s.container.window();
-            },
         };
     }
 
@@ -151,47 +111,13 @@ pub const Container = union(enum) {
         return switch (self) {
             .none => null,
             .tab_ => |v| v,
-            .split_tl, .split_br => split: {
-                const s = self.split() orelse break :split null;
-                break :split s.container.tab();
-            },
         };
     }
 
     /// Returns the split containing this surface (if any).
-    pub fn split(self: Container) ?*Split {
-        return switch (self) {
-            .none, .tab_ => null,
-            .split_tl => |ptr| @fieldParentPtr("top_left", ptr),
-            .split_br => |ptr| @fieldParentPtr("bottom_right", ptr),
-        };
-    }
-
     /// The side that we are in the split.
-    pub fn splitSide(self: Container) ?SplitSide {
-        return switch (self) {
-            .none, .tab_ => null,
-            .split_tl => .top_left,
-            .split_br => .bottom_right,
-        };
-    }
-
     /// Returns the first split with the given orientation, walking upwards in
     /// the tree.
-    pub fn firstSplitWithOrientation(
-        self: Container,
-        orientation: Split.Orientation,
-    ) ?*Split {
-        return switch (self) {
-            .none, .tab_ => null,
-            .split_tl, .split_br => split: {
-                const s = self.split() orelse break :split null;
-                if (s.orientation == orientation) break :split s;
-                break :split s.container.firstSplitWithOrientation(orientation);
-            },
-        };
-    }
-
     /// Replace the container's element with this element. This is
     /// used by children to modify their parents to for example change
     /// from a surface to a split or a split back to a surface or
@@ -201,10 +127,6 @@ pub const Container = union(enum) {
         switch (self) {
             .none => {},
             .tab_ => |t| t.replaceElem(elem),
-            inline .split_tl, .split_br => |ptr| {
-                const s = self.split().?;
-                s.replace(ptr, elem);
-            },
         }
 
         // Update the reverse reference to the container
@@ -218,8 +140,6 @@ pub const Container = union(enum) {
         switch (self) {
             .none => {},
             .tab_ => |t| t.remove(),
-            .split_tl => self.split().?.removeTopLeft(),
-            .split_br => self.split().?.removeBottomRight(),
         }
     }
 };
@@ -805,8 +725,6 @@ pub fn close(self: *Surface, process_active: bool) void {
 
 /// Close this surface.
 pub fn closeWithConfirmation(self: *Surface, process_active: bool, target: CloseDialog.Target) void {
-    self.setSplitZoom(false);
-
     if (!process_active) {
         self.container.remove();
         return;
@@ -914,7 +832,6 @@ pub fn setInitialWindowSize(self: *const Surface, width: u32, height: u32) !void
     if (self.realized) return;
 
     // If we are within a split, do not set the size.
-    if (self.container.split() != null) return;
 
     // This operation only makes sense if we're within a window view
     // hierarchy and we're the first tab in the window.
@@ -933,9 +850,6 @@ pub fn setSizeLimits(self: *const Surface, min: apprt.SurfaceSize, max_: ?apprt.
     // There's no support for setting max size at the moment.
     _ = max_;
 
-    // If we are within a split, do not set the size.
-    if (self.container.split() != null) return;
-
     // This operation only makes sense if we're within a window view
     // hierarchy and we're the first tab in the window.
     const window = self.container.window() orelse return;
@@ -952,11 +866,6 @@ pub fn grabFocus(self: *Surface) void {
     if (self.container.tab()) |tab| {
         // If any other surface was focused and zoomed in, set it to non zoomed in
         // so that self can grab focus.
-        if (tab.focus_child) |focus_child| {
-            if (focus_child.zoomed_in and focus_child != self) {
-                focus_child.setSplitZoom(false);
-            }
-        }
         tab.focus_child = self;
     }
 
@@ -2133,9 +2042,6 @@ fn gtkFocusLeave(_: *gtk.EventControllerFocus, self: *Surface) callconv(.C) void
 
     // We only try dimming the surface if we are a split
     switch (self.container) {
-        .split_br,
-        .split_tl,
-        => self.dimSurface(),
         else => {},
     }
 
@@ -2196,44 +2102,6 @@ pub fn present(self: *Surface) void {
     }
 
     self.grabFocus();
-}
-
-fn detachFromSplit(self: *Surface) void {
-    const split = self.container.split() orelse return;
-    switch (self.container.splitSide() orelse unreachable) {
-        .top_left => split.detachTopLeft(),
-        .bottom_right => split.detachBottomRight(),
-    }
-}
-
-fn attachToSplit(self: *Surface) void {
-    const split = self.container.split() orelse return;
-    split.updateChildren();
-}
-
-pub fn setSplitZoom(self: *Surface, new_split_zoom: bool) void {
-    if (new_split_zoom == self.zoomed_in) return;
-    const tab = self.container.tab() orelse return;
-
-    const tab_widget = tab.elem.widget();
-    const surface_widget = self.primaryWidget();
-
-    if (new_split_zoom) {
-        self.detachFromSplit();
-        tab.box.remove(tab_widget);
-        tab.box.append(surface_widget);
-    } else {
-        tab.box.remove(surface_widget);
-        self.attachToSplit();
-        tab.box.append(tab_widget);
-    }
-
-    self.zoomed_in = new_split_zoom;
-    self.grabFocus();
-}
-
-pub fn toggleSplitZoom(self: *Surface) void {
-    self.setSplitZoom(!self.zoomed_in);
 }
 
 /// Handle items being dropped on our surface.
@@ -2437,5 +2305,27 @@ pub fn setSecureInput(self: *Surface, value: apprt.action.SecureInput) void {
         .on => self.is_secure_input = true,
         .off => self.is_secure_input = false,
         .toggle => self.is_secure_input = !self.is_secure_input,
+    }
+}
+
+pub fn ringBell(self: *Surface) !void {
+    const features = self.app.config.@"bell-features";
+    const window = self.container.window() orelse {
+        log.warn("failed to ring bell: surface is not attached to any window", .{});
+        return;
+    };
+
+    // System beep
+    if (features.system) system: {
+        const surface = window.window.as(gtk.Native).getSurface() orelse break :system;
+        surface.beep();
+    }
+
+    // Mark tab as needing attention
+    if (self.container.tab()) |tab| tab: {
+        const page = window.notebook.getTabPage(tab) orelse break :tab;
+
+        // Need attention if we're not the currently selected tab
+        if (page.getSelected() == 0) page.setNeedsAttention(@intFromBool(true));
     }
 }

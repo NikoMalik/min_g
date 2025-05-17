@@ -83,8 +83,7 @@ pub const blueprint_files = [_]VersionedBlueprint{
 };
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const alloc = gpa.allocator();
+    const alloc = std.heap.c_allocator;
 
     var extra_ui_files = std.ArrayList([]const u8).init(alloc);
     defer {

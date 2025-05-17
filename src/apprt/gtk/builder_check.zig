@@ -5,8 +5,8 @@ const gtk = @import("gtk");
 const adw = @import("adw");
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const alloc = gpa.allocator();
+    // var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const alloc = std.heap.c_allocator;
 
     const filename = filename: {
         var it = try std.process.argsWithAllocator(alloc);
