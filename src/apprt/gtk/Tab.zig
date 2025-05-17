@@ -74,7 +74,7 @@ pub fn init(self: *Tab, window: *Window, parent_: ?*CoreSurface) !void {
         .parent = parent_,
     });
     errdefer surface.unref();
-    // surface.container = .{ .tab_ = self };
+    surface.container = .{ .tab_ = self };
     self.elem = .{ .surface = surface };
 
     // Add Surface to the Tab

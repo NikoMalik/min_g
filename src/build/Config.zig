@@ -27,7 +27,7 @@ target: std.Build.ResolvedTarget,
 wasm_target: WasmTarget,
 
 /// Comptime interfaces
-app_runtime: apprt.Runtime = .none,
+app_runtime: apprt.Runtime = .glfw,
 renderer: rendererpkg.Impl = .opengl,
 font_backend: font.Backend = .freetype,
 

@@ -468,7 +468,7 @@ pub fn performAction(
         .config_change => self.configChange(target, value.config),
         .reload_config => try self.reloadConfig(target, value),
         .inspector => self.controlInspector(target, value),
-        .desktop_notification => self.showDesktopNotification(target, value),
+        // .desktop_notification => self.showDesktopNotification(target, value),
         .set_title => try self.setTitle(target, value),
         .pwd => try self.setPwd(target, value),
         .present_terminal => self.presentTerminal(target),
@@ -891,37 +891,37 @@ fn setSizeLimit(
     }
 }
 
-fn showDesktopNotification(
-    self: *App,
-    target: apprt.Target,
-    n: apprt.action.DesktopNotification,
-) void {
-    // Set a default title if we don't already have one
-    const t = switch (n.title.len) {
-        0 => "Ghostty",
-        else => n.title,
-    };
+// fn showDesktopNotification(
+//     self: *App,
+//     target: apprt.Target,
+//     n: apprt.action.DesktopNotification,
+// ) void {
+//     // Set a default title if we don't already have one
+//     const t = switch (n.title.len) {
+//         0 => "Ghostty",
+//         else => n.title,
+//     };
 
-    const notification = gio.Notification.new(t);
-    defer notification.unref();
-    notification.setBody(n.body);
+//     const notification = gio.Notification.new(t);
+//     defer notification.unref();
+//     notification.setBody(n.body);
 
-    const icon = gio.ThemedIcon.new("com.mitchellh.ghostty");
-    defer icon.unref();
-    notification.setIcon(icon.as(gio.Icon));
+//     const icon = gio.ThemedIcon.new("com.mitchellh.ghostty");
+//     defer icon.unref();
+//     notification.setIcon(icon.as(gio.Icon));
 
-    const pointer = glib.Variant.newUint64(switch (target) {
-        .app => 0,
-        .surface => |v| @intFromPtr(v),
-    });
-    notification.setDefaultActionAndTargetValue("app.present-surface", pointer);
+//     const pointer = glib.Variant.newUint64(switch (target) {
+//         .app => 0,
+//         .surface => |v| @intFromPtr(v),
+//     });
+//     notification.setDefaultActionAndTargetValue("app.present-surface", pointer);
 
-    const gio_app = self.app.as(gio.Application);
+//     const gio_app = self.app.as(gio.Application);
 
-    // We set the notification ID to the body content. If the content is the
-    // same, this notification may replace a previous notification
-    gio_app.sendNotification(n.body, notification);
-}
+//     // We set the notification ID to the body content. If the content is the
+//     // same, this notification may replace a previous notification
+//     gio_app.sendNotification(n.body, notification);
+// }
 
 fn configChange(
     self: *App,

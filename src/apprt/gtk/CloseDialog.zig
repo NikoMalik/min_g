@@ -28,36 +28,33 @@ pub fn show(target: Target) !void {
     // If we don't have a possible window to ask the user,
     // in most situations (e.g. when a split isn't attached to a window)
     // we should just close unconditionally.
-    const dialog_window = target.dialogWindow() orelse {
-        target.close();
-        return;
-    };
+    target.close();
 
-    const dialog = switch (DialogType) {
-        // adw.AlertDialog => adw.AlertDialog.new(target.title(), target.body()),
-        // adw.MessageDialog => adw.MessageDialog.new(dialog_window, target.title(), target.body()),
-        else => unreachable,
-    };
+    // const dialog = switch (DialogType) {
+    //     // adw.AlertDialog => adw.AlertDialog.new(target.title(), target.body()),
+    //     // adw.MessageDialog => adw.MessageDialog.new(dialog_window, target.title(), target.body()),
+    //     else => unreachable,
+    // };
 
     // AlertDialog and MessageDialog have essentially the same API,
     // so we can cheat a little here
-    dialog.addResponse("cancel", i18n._("Cancel"));
-    dialog.setCloseResponse("cancel");
+    // dialog.addResponse("cancel", i18n._("Cancel"));
+    // dialog.setCloseResponse("cancel");
 
-    dialog.addResponse("close", i18n._("Close"));
-    dialog.setResponseAppearance("close", .destructive);
+    // dialog.addResponse("close", i18n._("Close"));
+    // dialog.setResponseAppearance("close", .destructive);
 
     // Need a stable pointer
-    const target_ptr = try target.allocator().create(Target);
-    target_ptr.* = target;
+    // const target_ptr = try target.allocator().create(Target);
+    // target_ptr.* = target;
 
-    _ = DialogType.signals.response.connect(dialog, *Target, responseCallback, target_ptr, .{});
+    // _ = DialogType.signals.response.connect(dialog, *Target, responseCallback, target_ptr, .{});
 
-    switch (DialogType) {
-        adw.AlertDialog => dialog.as(adw.Dialog).present(dialog_window.as(gtk.Widget)),
-        adw.MessageDialog => dialog.as(gtk.Window).present(),
-        else => unreachable,
-    }
+    // switch (DialogType) {
+    //     // adw.AlertDialog => dialog.as(adw.Dialog).present(dialog_window.as(gtk.Widget)),
+    //     // adw.MessageDialog => dialog.as(gtk.Window).present(),
+    //     else => unreachable,
+    // }
 }
 
 fn responseCallback(
