@@ -18,47 +18,46 @@ const log = std.log.scoped(.close_dialog);
 // We don't fall back to the GTK Message/AlertDialogs since
 // we don't plan to support libadw < 1.2 as of time of writing
 // TODO: Switch to just adw.AlertDialog when we drop Debian 12 support
-const DialogType = if (adwaita.supportsDialogs()) adw.AlertDialog else adw.MessageDialog;
+// const DialogType = if (adwaita.supportsDialogs()) adw.AlertDialog else adw.MessageDialog;
 
 /// Open the dialog when the user requests to close a window/tab/split/etc.
 /// but there's still one or more running processes inside the target that
 /// cannot be closed automatically. We then ask the user whether they want
 /// to terminate existing processes.
-pub fn show(target: Target) !void {
-    // If we don't have a possible window to ask the user,
-    // in most situations (e.g. when a split isn't attached to a window)
-    // we should just close unconditionally.
-    target.close();
+// pub fn show(target: Target) !void {
+//     // If we don't have a possible window to ask the user,
+//     // in most situations (e.g. when a split isn't attached to a window)
+//     // we should just close unconditionally.
+//     target.close();
 
-    // const dialog = switch (DialogType) {
-    //     // adw.AlertDialog => adw.AlertDialog.new(target.title(), target.body()),
-    //     // adw.MessageDialog => adw.MessageDialog.new(dialog_window, target.title(), target.body()),
-    //     else => unreachable,
-    // };
+//     // const dialog = switch (DialogType) {
+//     //     // adw.AlertDialog => adw.AlertDialog.new(target.title(), target.body()),
+//     //     // adw.MessageDialog => adw.MessageDialog.new(dialog_window, target.title(), target.body()),
+//     //     else => unreachable,
+//     // };
 
-    // AlertDialog and MessageDialog have essentially the same API,
-    // so we can cheat a little here
-    // dialog.addResponse("cancel", i18n._("Cancel"));
-    // dialog.setCloseResponse("cancel");
+//     // AlertDialog and MessageDialog have essentially the same API,
+//     // so we can cheat a little here
+//     // dialog.addResponse("cancel", i18n._("Cancel"));
+//     // dialog.setCloseResponse("cancel");
 
-    // dialog.addResponse("close", i18n._("Close"));
-    // dialog.setResponseAppearance("close", .destructive);
+//     // dialog.addResponse("close", i18n._("Close"));
+//     // dialog.setResponseAppearance("close", .destructive);
 
-    // Need a stable pointer
-    // const target_ptr = try target.allocator().create(Target);
-    // target_ptr.* = target;
+//     // Need a stable pointer
+//     // const target_ptr = try target.allocator().create(Target);
+//     // target_ptr.* = target;
 
-    // _ = DialogType.signals.response.connect(dialog, *Target, responseCallback, target_ptr, .{});
+//     // _ = DialogType.signals.response.connect(dialog, *Target, responseCallback, target_ptr, .{});
 
-    // switch (DialogType) {
-    //     // adw.AlertDialog => dialog.as(adw.Dialog).present(dialog_window.as(gtk.Widget)),
-    //     // adw.MessageDialog => dialog.as(gtk.Window).present(),
-    //     else => unreachable,
-    // }
-}
+//     // switch (DialogType) {
+//     //     // adw.AlertDialog => dialog.as(adw.Dialog).present(dialog_window.as(gtk.Widget)),
+//     //     // adw.MessageDialog => dialog.as(gtk.Window).present(),
+//     //     else => unreachable,
+//     // }
+// }
 
 fn responseCallback(
-    _: *DialogType,
     response: [*:0]const u8,
     target: *Target,
 ) callconv(.C) void {
@@ -97,27 +96,27 @@ pub const Target = union(enum) {
     //     };
     // }
 
-    pub fn dialogWindow(self: Target) ?*gtk.Window {
-        return switch (self) {
-            .app => {
-                // Find the currently focused window. We don't store this
-                // anywhere inside the App structure for some reason, so
-                // we have to query every single open window and see which
-                // one is active (focused and receiving keyboard input)
-                const list = gtk.Window.listToplevels();
-                defer list.free();
+    // pub fn dialogWindow(self: Target) ?*gtk.Window {
+    //     return switch (self) {
+    //         .app => {
+    //             // Find the currently focused window. We don't store this
+    //             // anywhere inside the App structure for some reason, so
+    //             // we have to query every single open window and see which
+    //             // one is active (focused and receiving keyboard input)
+    //             const list = gtk.Window.listToplevels();
+    //             defer list.free();
 
-                const focused = list.findCustom(null, findActiveWindow);
-                return @ptrCast(@alignCast(focused.f_data));
-            },
-            .window => |v| v.window.as(gtk.Window),
-            .tab => |v| v.window.window.as(gtk.Window),
-            .surface => |v| {
-                const window_ = v.container.window() orelse return null;
-                return window_.window.as(gtk.Window);
-            },
-        };
-    }
+    //             const focused = list.findCustom(null, findActiveWindow);
+    //             return @ptrCast(@alignCast(focused.f_data));
+    //         },
+    //         .window => |v| v.window.as(gtk.Window),
+    //         .tab => |v| v.window.window.as(gtk.Window),
+    //         .surface => |v| {
+    //             const window_ = v.container.window() orelse return null;
+    //             return window_.window.as(gtk.Window);
+    //         },
+    //     };
+    // }
 
     fn allocator(self: Target) std.mem.Allocator {
         return switch (self) {

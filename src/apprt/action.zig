@@ -85,10 +85,6 @@ pub const Action = union(Key) {
     /// Closes the tab belonging to the currently focused split.
     close_tab,
 
-    /// Create a new split. The value determines the location of the split
-    /// relative to the target.
-    new_split: SplitDirection,
-
     /// Close all open windows.
     close_all_windows,
 
@@ -109,30 +105,6 @@ pub const Action = union(Key) {
 
     /// Toggle the visibility of all Ghostty terminal windows.
     toggle_visibility,
-
-    /// Moves a tab by a relative offset.
-    ///
-    /// Adjusts the tab position based on `offset` (e.g., -1 for left, +1
-    /// for right). If the new position is out of bounds, it wraps around
-    /// cyclically within the tab range.
-    move_tab: MoveTab,
-
-    /// Jump to a specific tab. Must handle the scenario that the tab
-    /// value is invalid.
-    goto_tab: GotoTab,
-
-    /// Jump to a specific split.
-    goto_split: GotoSplit,
-
-    /// Resize the split in the given direction.
-    resize_split: ResizeSplit,
-
-    /// Equalize all the splits in the target window.
-    equalize_splits,
-
-    /// Toggle whether a split is zoomed or not. A zoomed split is resized
-    /// to take up the entire window.
-    toggle_split_zoom,
 
     /// Present the target terminal whether its a tab, split, or window.
     present_terminal,
@@ -165,9 +137,6 @@ pub const Action = union(Key) {
     /// The inspector for the given target has changes and should be
     /// rendered at the next opportunity.
     render_inspector,
-
-    /// Show a desktop notification.
-    desktop_notification: DesktopNotification,
 
     /// Set the title of the target to the requested value.
     set_title: SetTitle,
@@ -252,7 +221,6 @@ pub const Action = union(Key) {
         new_window,
         new_tab,
         close_tab,
-        new_split,
         close_all_windows,
         toggle_maximize,
         toggle_fullscreen,
@@ -260,12 +228,6 @@ pub const Action = union(Key) {
         toggle_window_decorations,
         toggle_quick_terminal,
         toggle_visibility,
-        move_tab,
-        goto_tab,
-        goto_split,
-        resize_split,
-        equalize_splits,
-        toggle_split_zoom,
         present_terminal,
         size_limit,
         reset_window_size,
@@ -273,7 +235,6 @@ pub const Action = union(Key) {
         cell_size,
         inspector,
         render_inspector,
-        desktop_notification,
         set_title,
         prompt_title,
         pwd,
@@ -360,53 +321,53 @@ pub const Action = union(Key) {
     }
 };
 
-// This is made extern (c_int) to make interop easier with our embedded
-// runtime. The small size cost doesn't make a difference in our union.
-pub const SplitDirection = enum(c_int) {
-    right,
-    down,
-    left,
-    up,
-};
+// // This is made extern (c_int) to make interop easier with our embedded
+// // runtime. The small size cost doesn't make a difference in our union.
+// pub const SplitDirection = enum(c_int) {
+//     right,
+//     down,
+//     left,
+//     up,
+// };
 
-// This is made extern (c_int) to make interop easier with our embedded
-// runtime. The small size cost doesn't make a difference in our union.
-pub const GotoSplit = enum(c_int) {
-    previous,
-    next,
+// // This is made extern (c_int) to make interop easier with our embedded
+// // runtime. The small size cost doesn't make a difference in our union.
+// pub const GotoSplit = enum(c_int) {
+//     previous,
+//     next,
 
-    up,
-    left,
-    down,
-    right,
-};
+//     up,
+//     left,
+//     down,
+//     right,
+// };
 
-/// The amount to resize the split by and the direction to resize it in.
-pub const ResizeSplit = extern struct {
-    amount: u16,
-    direction: Direction,
+// /// The amount to resize the split by and the direction to resize it in.
+// pub const ResizeSplit = extern struct {
+//     amount: u16,
+//     direction: Direction,
 
-    pub const Direction = enum(c_int) {
-        up,
-        down,
-        left,
-        right,
-    };
-};
+//     pub const Direction = enum(c_int) {
+//         up,
+//         down,
+//         left,
+//         right,
+//     };
+// };
 
-pub const MoveTab = extern struct {
-    amount: isize,
-};
+// pub const MoveTab = extern struct {
+//     amount: isize,
+// };
 
 /// The tab to jump to. This is non-exhaustive so that integer values represent
 /// the index (zero-based) of the tab to jump to. Negative values are special
 /// values.
-pub const GotoTab = enum(c_int) {
-    previous = -1,
-    next = -2,
-    last = -3,
-    _,
-};
+// pub const GotoTab = enum(c_int) {
+//     previous = -1,
+//     next = -2,
+//     last = -3,
+//     _,
+// };
 
 /// The fullscreen mode to toggle to if we're moving to fullscreen.
 pub const Fullscreen = enum(c_int) {
@@ -506,24 +467,24 @@ pub const Pwd = struct {
     }
 };
 
-/// The desktop notification to show.
-pub const DesktopNotification = struct {
-    title: [:0]const u8,
-    body: [:0]const u8,
+// /// The desktop notification to show.
+// pub const DesktopNotification = struct {
+//     title: [:0]const u8,
+//     body: [:0]const u8,
 
-    // Sync with: ghostty_action_desktop_notification_s
-    pub const C = extern struct {
-        title: [*:0]const u8,
-        body: [*:0]const u8,
-    };
+//     // Sync with: ghostty_action_desktop_notification_s
+//     pub const C = extern struct {
+//         title: [*:0]const u8,
+//         body: [*:0]const u8,
+//     };
 
-    pub fn cval(self: DesktopNotification) C {
-        return .{
-            .title = self.title.ptr,
-            .body = self.body.ptr,
-        };
-    }
-};
+//     pub fn cval(self: DesktopNotification) C {
+//         return .{
+//             .title = self.title.ptr,
+//             .body = self.body.ptr,
+//         };
+//     }
+// };
 
 pub const KeySequence = union(enum) {
     trigger: input.Trigger,

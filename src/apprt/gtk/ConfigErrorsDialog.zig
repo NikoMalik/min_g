@@ -16,11 +16,11 @@ const Config = configpkg.Config;
 const App = @import("App.zig");
 const Window = @import("Window.zig");
 const Builder = @import("Builder.zig");
-const adw_version = @import("adw_version.zig");
+// const adw_version = @import("adw_version.zig");
 
 const log = std.log.scoped(.gtk);
 
-const DialogType = if (adw_version.supportsDialogs()) adw.AlertDialog else adw.MessageDialog;
+const DialogType = adw.MessageDialog;
 
 builder: Builder,
 dialog: *DialogType,

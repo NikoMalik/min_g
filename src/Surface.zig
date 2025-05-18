@@ -912,16 +912,16 @@ pub fn handleMessage(self: *Surface, msg: Message) !void {
             self.close();
         },
 
-        .desktop_notification => |notification| {
-            if (!self.config.desktop_notifications) {
-                log.info("application attempted to display a desktop notification, but 'desktop-notifications' is disabled", .{});
-                return;
-            }
+        // .desktop_notification => |notification| {
+        //     if (!self.config.desktop_notifications) {
+        //         log.info("application attempted to display a desktop notification, but 'desktop-notifications' is disabled", .{});
+        //         return;
+        //     }
 
-            const title = std.mem.sliceTo(&notification.title, 0);
-            const body = std.mem.sliceTo(&notification.body, 0);
-            try self.showDesktopNotification(title, body);
-        },
+        //     const title = std.mem.sliceTo(&notification.title, 0);
+        //     const body = std.mem.sliceTo(&notification.body, 0);
+        //     try self.showDesktopNotification(title, body);
+        // },
 
         .renderer_health => |health| self.updateRendererHealth(health),
 
@@ -2594,7 +2594,6 @@ fn mouseReport(
         .x10 => if (action != .press or
             button == null or
             !(button.? == .left or
-                button.? == .right or
                 button.? == .middle)) return,
 
         // Doesn't report motion
@@ -4180,80 +4179,6 @@ pub fn performBindingAction(self: *Surface, action: input.Binding.Action) !bool 
             {},
         ),
 
-        inline .previous_tab,
-        .next_tab,
-        .last_tab,
-        .goto_tab,
-        => |v, tag| return try self.rt_app.performAction(
-            .{ .surface = self },
-            .goto_tab,
-            switch (tag) {
-                .previous_tab => .previous,
-                .next_tab => .next,
-                .last_tab => .last,
-                .goto_tab => @enumFromInt(v),
-                else => comptime unreachable,
-            },
-        ),
-
-        .move_tab => |position| return try self.rt_app.performAction(
-            .{ .surface = self },
-            .move_tab,
-            .{ .amount = position },
-        ),
-
-        .new_split => |direction| return try self.rt_app.performAction(
-            .{ .surface = self },
-            .new_split,
-            switch (direction) {
-                .right => .right,
-                .left => .left,
-                .down => .down,
-                .up => .up,
-                .auto => if (self.size.screen.width > self.size.screen.height)
-                    .right
-                else
-                    .down,
-            },
-        ),
-
-        .goto_split => |direction| return try self.rt_app.performAction(
-            .{ .surface = self },
-            .goto_split,
-            switch (direction) {
-                inline else => |tag| @field(
-                    apprt.action.GotoSplit,
-                    @tagName(tag),
-                ),
-            },
-        ),
-
-        .resize_split => |value| return try self.rt_app.performAction(
-            .{ .surface = self },
-            .resize_split,
-            .{
-                .amount = value[1],
-                .direction = switch (value[0]) {
-                    inline else => |tag| @field(
-                        apprt.action.ResizeSplit.Direction,
-                        @tagName(tag),
-                    ),
-                },
-            },
-        ),
-
-        .equalize_splits => return try self.rt_app.performAction(
-            .{ .surface = self },
-            .equalize_splits,
-            {},
-        ),
-
-        .toggle_split_zoom => return try self.rt_app.performAction(
-            .{ .surface = self },
-            .toggle_split_zoom,
-            {},
-        ),
-
         .reset_window_size => return try self.rt_app.performAction(
             .{ .surface = self },
             .reset_window_size,
@@ -4384,6 +4309,7 @@ pub fn performBindingAction(self: *Surface, action: input.Binding.Action) !bool 
             screen.dirty.selection = true;
             try self.queueRender();
         },
+        else => unreachable,
     }
 
     return true;
@@ -4718,51 +4644,51 @@ fn completeClipboardReadOSC52(
     ), .unlocked);
 }
 
-fn showDesktopNotification(self: *Surface, title: [:0]const u8, body: [:0]const u8) !void {
-    // Wyhash is used to hash the contents of the desktop notification to limit
-    // how fast identical notifications can be sent sequentially.
-    const hash_algorithm = std.hash.Wyhash;
+// fn showDesktopNotification(self: *Surface, title: [:0]const u8, body: [:0]const u8) !void {
+//     // Wyhash is used to hash the contents of the desktop notification to limit
+//     // how fast identical notifications can be sent sequentially.
+//     const hash_algorithm = std.hash.Wyhash;
 
-    const now = try std.time.Instant.now();
+//     const now = try std.time.Instant.now();
 
-    // Set a limit of one desktop notification per second so that the OS
-    // doesn't kill us when we run out of resources.
-    if (self.app.last_notification_time) |last| {
-        if (now.since(last) < 1 * std.time.ns_per_s) {
-            log.warn("rate limiting desktop notifications", .{});
-            return;
-        }
-    }
+//     // Set a limit of one desktop notification per second so that the OS
+//     // doesn't kill us when we run out of resources.
+//     if (self.app.last_notification_time) |last| {
+//         if (now.since(last) < 1 * std.time.ns_per_s) {
+//             log.warn("rate limiting desktop notifications", .{});
+//             return;
+//         }
+//     }
 
-    const new_digest = d: {
-        var hash = hash_algorithm.init(0);
-        hash.update(title);
-        hash.update(body);
-        break :d hash.final();
-    };
+//     const new_digest = d: {
+//         var hash = hash_algorithm.init(0);
+//         hash.update(title);
+//         hash.update(body);
+//         break :d hash.final();
+//     };
 
-    // Set a limit of one notification per five seconds for desktop
-    // notifications with identical content.
-    if (self.app.last_notification_time) |last| {
-        if (self.app.last_notification_digest == new_digest) {
-            if (now.since(last) < 5 * std.time.ns_per_s) {
-                log.warn("suppressing identical desktop notification", .{});
-                return;
-            }
-        }
-    }
+//     // Set a limit of one notification per five seconds for desktop
+//     // notifications with identical content.
+//     if (self.app.last_notification_time) |last| {
+//         if (self.app.last_notification_digest == new_digest) {
+//             if (now.since(last) < 5 * std.time.ns_per_s) {
+//                 log.warn("suppressing identical desktop notification", .{});
+//                 return;
+//             }
+//         }
+//     }
 
-    self.app.last_notification_time = now;
-    self.app.last_notification_digest = new_digest;
-    _ = try self.rt_app.performAction(
-        .{ .surface = self },
-        .desktop_notification,
-        .{
-            .title = title,
-            .body = body,
-        },
-    );
-}
+//     self.app.last_notification_time = now;
+//     self.app.last_notification_digest = new_digest;
+//     _ = try self.rt_app.performAction(
+//         .{ .surface = self },
+//         .desktop_notification,
+//         .{
+//             .title = title,
+//             .body = body,
+//         },
+//     );
+// }
 
 fn crashThreadState(self: *Surface) crash.sentry.ThreadState {
     return .{

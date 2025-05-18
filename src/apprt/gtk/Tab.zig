@@ -124,8 +124,8 @@ pub fn setTitleText(self: *Tab, title: [:0]const u8) void {
     self.window.notebook.setTabTitle(self, title);
 }
 
-pub fn setTooltipText(self: *Tab, tooltip: [:0]const u8) void {
-    self.window.notebook.setTabTooltip(self, tooltip);
+pub fn setTooltipText(_: *Tab, _: [:0]const u8) void {
+    // self.window.notebook.setTabTooltip(self, tooltip);
 }
 
 /// Remove this tab from the window.

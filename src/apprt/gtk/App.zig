@@ -38,7 +38,7 @@ const cgroup = @import("cgroup.zig");
 const Surface = @import("Surface.zig");
 const Window = @import("Window.zig");
 const ConfigErrorsDialog = @import("ConfigErrorsDialog.zig");
-const ClipboardConfirmationWindow = @import("ClipboardConfirmationWindow.zig");
+// const ClipboardConfirmationWindow = @import("ClipboardConfirmationWindow.zig");
 const CloseDialog = @import("CloseDialog.zig");
 // const Split = @import("Split.zig");
 const inspector = @import("inspector.zig");
@@ -72,7 +72,7 @@ single_instance: bool,
 cursor_none: ?*gdk.Cursor,
 
 /// The clipboard confirmation window, if it is currently open.
-clipboard_confirmation_window: ?*ClipboardConfirmationWindow = null,
+// clipboard_confirmation_window: ?*ClipboardConfirmationWindow = null,
 
 /// The window containing the quick terminal.
 /// Null when never initialized.
@@ -105,8 +105,8 @@ pub fn init(core_app: *CoreApp, opts: Options) !App {
     // Log our GTK version
     gtk_version.logVersion();
 
-    // log the adwaita version
-    adw_version.logVersion();
+    // // log the adwaita version
+    // adw_version.logVersion();
 
     // Set gettext global domain to be our app so that our unqualified
     // translations map to our translations.
@@ -477,7 +477,7 @@ pub fn performAction(
         .mouse_visibility => self.setMouseVisibility(target, value),
         .mouse_shape => try self.setMouseShape(target, value),
         .mouse_over_link => self.setMouseOverLink(target, value),
-        .toggle_tab_overview => self.toggleTabOverview(target),
+        // .toggle_tab_overview => self.toggleTabOverview(target),
         // .toggle_split_zoom => self.toggleSplitZoom(target),
         .toggle_window_decorations => self.toggleWindowDecorations(target),
         .quit_timer => self.quitTimer(value),
@@ -1025,10 +1025,10 @@ fn syncActionAccelerators(self: *App) !void {
     try self.syncActionAccelerator("win.new-window", .{ .new_window = {} });
     try self.syncActionAccelerator("win.new-tab", .{ .new_tab = {} });
     try self.syncActionAccelerator("win.close-tab", .{ .close_tab = {} });
-    try self.syncActionAccelerator("win.split-right", .{ .new_split = .right });
-    try self.syncActionAccelerator("win.split-down", .{ .new_split = .down });
-    try self.syncActionAccelerator("win.split-left", .{ .new_split = .left });
-    try self.syncActionAccelerator("win.split-up", .{ .new_split = .up });
+    // try self.syncActionAccelerator("win.split-right", .{ .new_split = .right });
+    // try self.syncActionAccelerator("win.split-down", .{ .new_split = .down });
+    // try self.syncActionAccelerator("win.split-left", .{ .new_split = .left });
+    // try self.syncActionAccelerator("win.split-up", .{ .new_split = .up });
     try self.syncActionAccelerator("win.copy", .{ .copy_to_clipboard = {} });
     try self.syncActionAccelerator("win.paste", .{ .paste_from_clipboard = {} });
     try self.syncActionAccelerator("win.reset", .{ .reset = {} });
@@ -1414,14 +1414,12 @@ fn quit(self: *App) void {
     if (!self.running) return;
 
     // If the app says we don't need to confirm, then we can quit now.
-    if (!self.core_app.needsConfirmQuit()) {
-        self.quitNow();
-        return;
-    }
+    self.quitNow();
+    return;
 
-    CloseDialog.show(.{ .app = self }) catch |err| {
-        log.err("failed to open close dialog={}", .{err});
-    };
+    // CloseDialog.show(.{ .app = self }) catch |err| {
+    //     log.err("failed to open close dialog={}", .{err});
+    // };
 }
 
 /// This immediately destroys all windows, forcing the application to quit.

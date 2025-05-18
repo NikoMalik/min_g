@@ -10,7 +10,7 @@ const gobject = @import("gobject");
 
 const Window = @import("Window.zig");
 const Tab = @import("Tab.zig");
-const adw_version = @import("adw_version.zig");
+// const adw_version = @import("adw_version.zig");
 
 const log = std.log.scoped(.gtk);
 
@@ -35,24 +35,20 @@ pub fn init(self: *TabView, window: *Window) void {
     };
     self.tab_view.as(gtk.Widget).addCssClass("notebook");
 
-    if (adw_version.atLeast(1, 2, 0)) {
-        // Adwaita enables all of the shortcuts by default.
-        // We want to manage keybindings ourselves.
-        self.tab_view.removeShortcuts(.{
-            .alt_digits = true,
-            .alt_zero = true,
-            .control_end = true,
-            .control_home = true,
-            .control_page_down = true,
-            .control_page_up = true,
-            .control_shift_end = true,
-            .control_shift_home = true,
-            .control_shift_page_down = true,
-            .control_shift_page_up = true,
-            .control_shift_tab = true,
-            .control_tab = true,
-        });
-    }
+    self.tab_view.removeShortcuts(.{
+        .alt_digits = true,
+        .alt_zero = true,
+        .control_end = true,
+        .control_home = true,
+        .control_page_down = true,
+        .control_page_up = true,
+        .control_shift_end = true,
+        .control_shift_home = true,
+        .control_shift_page_down = true,
+        .control_shift_page_up = true,
+        .control_shift_tab = true,
+        .control_tab = true,
+    });
 
     _ = adw.TabView.signals.page_attached.connect(
         self.tab_view,
@@ -213,9 +209,9 @@ pub fn closeTab(self: *TabView, tab: *Tab) void {
         // which causes our surface to not properly cleanup. We
         // unref to force the cleanup. This will trigger a critical
         // warning from GTK, but I don't know any other workaround.
-        if (!adw_version.atLeast(1, 5, 1)) {
-            tab.box.unref();
-        }
+        // if (!adw_version.atLeast(1, 5, 1)) {
+        //     tab.box.unref();
+        // }
 
         self.window.close();
     }

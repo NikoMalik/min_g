@@ -46,14 +46,14 @@ pub const Message = union(enum) {
     /// a surface close, it may not.
     child_exited: void,
 
-    /// Show a desktop notification.
-    desktop_notification: struct {
-        /// Desktop notification title.
-        title: [63:0]u8,
+    // /// Show a desktop notification.
+    // desktop_notification: struct {
+    //     /// Desktop notification title.
+    //     title: [63:0]u8,
 
-        /// Desktop notification body.
-        body: [255:0]u8,
-    },
+    //     /// Desktop notification body.
+    //     body: [255:0]u8,
+    // },
 
     /// Health status change for the renderer.
     renderer_health: renderer.Health,

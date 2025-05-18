@@ -7,7 +7,7 @@ const std = @import("std");
 // Must be kept in sync with ghostty_cursor_shape_e
 pub const MouseShape = enum(c_int) {
     default,
-    context_menu,
+    // context_menu,
     help,
     pointer,
     progress,
@@ -50,7 +50,7 @@ pub const MouseShape = enum(c_int) {
 const string_map = std.StaticStringMap(MouseShape).initComptime(.{
     // W3C
     .{ "default", .default },
-    .{ "context-menu", .context_menu },
+    // .{ "context-menu", .context_menu },
     .{ "help", .help },
     .{ "pointer", .pointer },
     .{ "progress", .progress },

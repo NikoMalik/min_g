@@ -28,7 +28,7 @@ const internal_os = @import("../../os/main.zig");
 const App = @import("App.zig");
 const Tab = @import("Tab.zig");
 const Window = @import("Window.zig");
-const Menu = @import("menu.zig").Menu;
+// const Menu = @import("menu.zig").Menu;
 const ClipboardConfirmationWindow = @import("ClipboardConfirmationWindow.zig");
 const ResizeOverlay = @import("ResizeOverlay.zig");
 const URLWidget = @import("URLWidget.zig");
@@ -36,7 +36,7 @@ const CloseDialog = @import("CloseDialog.zig");
 const inspectorpkg = @import("inspector.zig");
 const gtk_key = @import("key.zig");
 const Builder = @import("Builder.zig");
-const adw_version = @import("adw_version.zig");
+// const adw_version = @import("adw_version.zig");
 
 const log = std.log.scoped(.gtk_surface);
 
@@ -225,7 +225,7 @@ im_len: u7 = 0,
 cgroup_path: ?[]const u8 = null,
 
 /// Our context menu.
-context_menu: Menu(Surface, "context_menu", false),
+// context_menu: Menu(Surface, "context_menu", false),
 
 /// True when we have a precision scroll in progress
 precision_scroll: bool = false,
@@ -437,13 +437,12 @@ pub fn init(self: *Surface, app: *App, opts: Options) !void {
         .cursor_pos = .{ .x = -1, .y = -1 },
         .im_context = im_context,
         .cgroup_path = cgroup_path,
-        .context_menu = undefined,
     };
     errdefer self.* = undefined;
 
     // initialize the context menu
-    self.context_menu.init(self);
-    self.context_menu.setParent(overlay.as(gtk.Widget));
+    // self.context_menu.init(self);
+    // self.context_menu.setParent(overlay.as(gtk.Widget));
 
     // initialize the resize overlay
     self.resize_overlay.init(self, &app.config);
@@ -724,15 +723,15 @@ pub fn close(self: *Surface, process_active: bool) void {
 }
 
 /// Close this surface.
-pub fn closeWithConfirmation(self: *Surface, process_active: bool, target: CloseDialog.Target) void {
+pub fn closeWithConfirmation(self: *Surface, process_active: bool, _: CloseDialog.Target) void {
     if (!process_active) {
         self.container.remove();
         return;
     }
 
-    CloseDialog.show(target) catch |err| {
-        log.err("failed to open close dialog={}", .{err});
-    };
+    // CloseDialog.show(target) catch |err| {
+    //     log.err("failed to open close dialog={}", .{err});
+    // };
 }
 
 pub fn controlInspector(
@@ -966,18 +965,18 @@ fn resolveTitle(self: *Surface, title: [:0]const u8) [:0]const u8 {
         title[zoom_title_prefix.len..];
 }
 
-pub fn promptTitle(self: *Surface) !void {
-    if (!adw_version.atLeast(1, 5, 0)) return;
-    const window = self.container.window() orelse return;
+pub fn promptTitle(_: *Surface) !void {
+    return;
+    // const window = self.container.window() orelse return;
 
-    var builder = Builder.init("prompt-title-dialog", 1, 5, .blp);
-    defer builder.deinit();
+    // var builder = Builder.init("prompt-title-dialog", 1, 5, .blp);
+    // defer builder.deinit();
 
-    const entry = builder.getObject(gtk.Entry, "title_entry").?;
-    entry.getBuffer().setText(self.getTitle() orelse "", -1);
+    // const entry = builder.getObject(gtk.Entry, "title_entry").?;
+    // entry.getBuffer().setText(self.getTitle() orelse "", -1);
 
-    const dialog = builder.getObject(adw.AlertDialog, "prompt_title_dialog").?;
-    dialog.choose(window.window.as(gtk.Widget), null, gtkPromptTitleResponse, self);
+    // const dialog = builder.getObject(adw.AlertDialog, "prompt_title_dialog").?;
+    // dialog.choose(window.window.as(gtk.Widget), null, gtkPromptTitleResponse, self);
 }
 
 /// Set the current working directory of the surface.
@@ -1011,7 +1010,7 @@ pub fn setMouseShape(
         .default => "default",
         .help => "help",
         .pointer => "pointer",
-        .context_menu => "context-menu",
+        // .context_menu => "context-menu",
         .progress => "progress",
         .wait => "wait",
         .cell => "cell",
@@ -1154,15 +1153,15 @@ pub fn setClipboardString(
         return;
     }
 
-    ClipboardConfirmationWindow.create(
-        self.app,
-        val,
-        &self.core_surface,
-        .{ .osc_52_write = clipboard_type },
-        self.is_secure_input,
-    ) catch |window_err| {
-        log.err("failed to create clipboard confirmation window err={}", .{window_err});
-    };
+    // ClipboardConfirmationWindow.create(
+    //     self.app,
+    //     val,
+    //     &self.core_surface,
+    //     .{ .osc_52_write = clipboard_type },
+    //     self.is_secure_input,
+    // ) catch |window_err| {
+    //     log.err("failed to create clipboard confirmation window err={}", .{window_err});
+    // };
 }
 
 const ClipboardRequest = struct {
@@ -1200,16 +1199,6 @@ fn gtkClipboardRead(
         error.UnsafePaste,
         error.UnauthorizedPaste,
         => {
-            // Create a dialog and ask the user if they want to paste anyway.
-            ClipboardConfirmationWindow.create(
-                self.app,
-                str,
-                &self.core_surface,
-                req.state,
-                self.is_secure_input,
-            ) catch |window_err| {
-                log.err("failed to create clipboard confirmation window err={}", .{window_err});
-            };
             return;
         },
 
@@ -1228,35 +1217,35 @@ pub fn getCursorPos(self: *const Surface) !apprt.CursorPos {
     return self.cursor_pos;
 }
 
-pub fn showDesktopNotification(
-    self: *Surface,
-    title: []const u8,
-    body: []const u8,
-) !void {
-    // Set a default title if we don't already have one
-    const t = switch (title.len) {
-        0 => "Ghostty",
-        else => title,
-    };
+// pub fn showDesktopNotification(
+//     self: *Surface,
+//     title: []const u8,
+//     body: []const u8,
+// ) !void {
+//     // Set a default title if we don't already have one
+//     const t = switch (title.len) {
+//         0 => "Ghostty",
+//         else => title,
+//     };
 
-    const notification = gio.Notification.new(t);
-    defer notification.unref();
-    notification.setBody(body);
+//     const notification = gio.Notification.new(t);
+//     defer notification.unref();
+//     notification.setBody(body);
 
-    const icon = gio.ThemedIcon.new(build_config.bundle_id);
-    defer icon.unref();
+//     const icon = gio.ThemedIcon.new(build_config.bundle_id);
+//     defer icon.unref();
 
-    notification.setIcon(icon);
+//     notification.setIcon(icon);
 
-    const pointer = glib.Variant.newUint64(@intFromPtr(&self.core_surface));
-    notification.setDefaultActionAndTargetValue("app.present-surface", pointer);
+//     const pointer = glib.Variant.newUint64(@intFromPtr(&self.core_surface));
+//     notification.setDefaultActionAndTargetValue("app.present-surface", pointer);
 
-    const app = self.app.app.as(gio.Application);
+//     const app = self.app.app.as(gio.Application);
 
-    // We set the notification ID to the body content. If the content is the
-    // same, this notification may replace a previous notification
-    app.sendNotification(body.ptr, notification);
-}
+//     // We set the notification ID to the body content. If the content is the
+//     // same, this notification may replace a previous notification
+//     app.sendNotification(body.ptr, notification);
+// }
 
 fn gtkRealize(gl_area: *gtk.GLArea, self: *Surface) callconv(.C) void {
     log.debug("gl surface realized", .{});
@@ -1409,18 +1398,18 @@ fn scaledCoordinates(
 }
 
 fn gtkMouseDown(
-    gesture: *gtk.GestureClick,
+    _: *gtk.GestureClick,
     _: c_int,
-    x: f64,
-    y: f64,
+    _: f64,
+    _: f64,
     self: *Surface,
 ) callconv(.C) void {
-    const event = gesture.as(gtk.EventController).getCurrentEvent() orelse return;
+    // const event = gesture.as(gtk.EventController).getCurrentEvent() orelse return;
 
-    const gtk_mods = event.getModifierState();
+    // const gtk_mods = event.getModifierState();
 
-    const button = translateMouseButton(gesture.as(gtk.GestureSingle).getCurrentButton());
-    const mods = gtk_key.translateMods(gtk_mods);
+    // const button = translateMouseButton(gesture.as(gtk.GestureSingle).getCurrentButton());
+    // const mods = gtk_key.translateMods(gtk_mods);
 
     // If we don't have focus, grab it.
     const gl_area_widget = self.gl_area.as(gtk.Widget);
@@ -1428,17 +1417,17 @@ fn gtkMouseDown(
         self.grabFocus();
     }
 
-    const consumed = self.core_surface.mouseButtonCallback(.press, button, mods) catch |err| {
-        log.err("error in key callback err={}", .{err});
-        return;
-    };
+    // const consumed = self.core_surface.mouseButtonCallback(.press, button, mods) catch |err| {
+    //     log.err("error in key callback err={}", .{err});
+    //     return;
+    // };
 
-    // If a right click isn't consumed, mouseButtonCallback selects the hovered
-    // word and returns false. We can use this to handle the context menu
-    // opening under normal scenarios.
-    if (!consumed and button == .right) {
-        self.context_menu.popupAt(@intFromFloat(x), @intFromFloat(y));
-    }
+    // // If a right click isn't consumed, mouseButtonCallback selects the hovered
+    // // word and returns false. We can use this to handle the context menu
+    // // opening under normal scenarios.
+    // if (!consumed and button == .right) {
+    //     self.context_menu.popupAt(@intFromFloat(x), @intFromFloat(y));
+    // }
 }
 
 fn gtkMouseUp(
@@ -2061,7 +2050,7 @@ pub fn dimSurface(self: *Surface) void {
 
     // Don't dim surface if context menu is open.
     // This means we got unfocused due to it opening.
-    if (self.context_menu.isVisible()) return;
+    // if (self.context_menu.isVisible()) return;
 
     // If there's already an unfocused_widget do nothing;
     if (self.unfocused_widget) |_| return;
@@ -2095,13 +2084,14 @@ fn translateMouseButton(button: c_uint) input.MouseButton {
 pub fn present(self: *Surface) void {
     if (self.container.window()) |window| {
         if (self.container.tab()) |tab| {
-            if (window.notebook.getTabPosition(tab)) |position|
+            if (window.notebook.getTabPosition(tab)) |position| {
                 _ = window.notebook.gotoNthTab(position);
+            }
+            window.window.as(gtk.Window).present();
         }
-        window.window.as(gtk.Window).present();
-    }
 
-    self.grabFocus();
+        self.grabFocus();
+    }
 }
 
 /// Handle items being dropped on our surface.
@@ -2201,15 +2191,16 @@ fn doPaste(self: *Surface, data: [:0]const u8) void {
         error.UnsafePaste,
         error.UnauthorizedPaste,
         => {
-            ClipboardConfirmationWindow.create(
-                self.app,
-                data,
-                &self.core_surface,
-                .paste,
-                self.is_secure_input,
-            ) catch |window_err| {
-                log.err("failed to create clipboard confirmation window err={}", .{window_err});
-            };
+            //ignore
+            // ClipboardConfirmationWindow.create(
+            //     self.app,
+            //     data,
+            //     &self.core_surface,
+            //     .paste,
+            //     self.is_secure_input,
+            // ) catch |window_err| {
+            //     log.err("failed to create clipboard confirmation window err={}", .{window_err});
+            // };
         },
         error.OutOfMemory,
         error.NoSpaceLeft,
@@ -2263,41 +2254,41 @@ fn g_value_holds(value_: ?*gobject.Value, g_type: gobject.Type) bool {
     return false;
 }
 
-fn gtkPromptTitleResponse(source_object: ?*gobject.Object, result: *gio.AsyncResult, ud: ?*anyopaque) callconv(.C) void {
-    if (!adw_version.supportsDialogs()) return;
-    const dialog = gobject.ext.cast(adw.AlertDialog, source_object.?).?;
-    const self: *Surface = @ptrCast(@alignCast(ud));
+fn gtkPromptTitleResponse(_: ?*gobject.Object, _: *gio.AsyncResult, _: ?*anyopaque) callconv(.C) void {
+    return;
+    // const dialog = gobject.ext.cast(adw.AlertDialog, source_object.?).?;
+    // const self: *Surface = @ptrCast(@alignCast(ud));
 
-    const response = dialog.chooseFinish(result);
-    if (std.mem.orderZ(u8, "ok", response) == .eq) {
-        const title_entry = gobject.ext.cast(gtk.Entry, dialog.getExtraChild().?).?;
-        const title = std.mem.span(title_entry.getBuffer().getText());
+    // const response = dialog.chooseFinish(result);
+    // if (std.mem.orderZ(u8, "ok", response) == .eq) {
+    //     const title_entry = gobject.ext.cast(gtk.Entry, dialog.getExtraChild().?).?;
+    //     const title = std.mem.span(title_entry.getBuffer().getText());
 
-        // if the new title is empty and the user has set the title previously, restore the terminal provided title
-        if (title.len == 0) {
-            if (self.getTerminalTitle()) |terminal_title| {
-                self.setTitle(terminal_title, .user) catch |err| {
-                    log.err("failed to set title={}", .{err});
-                };
-                self.app.core_app.alloc.free(self.title_from_terminal.?);
-                self.title_from_terminal = null;
-            }
-        } else if (title.len > 0) {
-            // if this is the first time the user is setting the title, save the current terminal provided title
-            if (self.title_from_terminal == null and self.title_text != null) {
-                self.title_from_terminal = self.app.core_app.alloc.dupeZ(u8, self.title_text.?) catch |err| switch (err) {
-                    error.OutOfMemory => {
-                        log.err("failed to allocate memory for title={}", .{err});
-                        return;
-                    },
-                };
-            }
+    //     // if the new title is empty and the user has set the title previously, restore the terminal provided title
+    //     if (title.len == 0) {
+    //         if (self.getTerminalTitle()) |terminal_title| {
+    //             self.setTitle(terminal_title, .user) catch |err| {
+    //                 log.err("failed to set title={}", .{err});
+    //             };
+    //             self.app.core_app.alloc.free(self.title_from_terminal.?);
+    //             self.title_from_terminal = null;
+    //         }
+    //     } else if (title.len > 0) {
+    //         // if this is the first time the user is setting the title, save the current terminal provided title
+    //         if (self.title_from_terminal == null and self.title_text != null) {
+    //             self.title_from_terminal = self.app.core_app.alloc.dupeZ(u8, self.title_text.?) catch |err| switch (err) {
+    //                 error.OutOfMemory => {
+    //                     log.err("failed to allocate memory for title={}", .{err});
+    //                     return;
+    //                 },
+    //             };
+    //         }
 
-            self.setTitle(title, .user) catch |err| {
-                log.err("failed to set title={}", .{err});
-            };
-        }
-    }
+    //         self.setTitle(title, .user) catch |err| {
+    //             log.err("failed to set title={}", .{err});
+    //         };
+    //     }
+    // }
 }
 
 pub fn setSecureInput(self: *Surface, value: apprt.action.SecureInput) void {

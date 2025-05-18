@@ -45,9 +45,9 @@ pub fn run(alloc: Allocator) !u8 {
         try stdout.print("  - GTK version:\n", .{});
         try stdout.print("    build      : {}\n", .{gtk_version.comptime_version});
         try stdout.print("    runtime    : {}\n", .{gtk_version.getRuntimeVersion()});
-        try stdout.print("  - libadwaita : enabled\n", .{});
-        try stdout.print("    build      : {}\n", .{adw_version.comptime_version});
-        try stdout.print("    runtime    : {}\n", .{adw_version.getRuntimeVersion()});
+        try stdout.print("  - libadwaita : disabled\n", .{});
+        // try stdout.print("    build      : {}\n", .{adw_version.comptime_version});
+        // try stdout.print("    runtime    : {}\n", .{adw_version.getRuntimeVersion()});
         if (comptime build_options.x11) {
             try stdout.print("  - libX11     : enabled\n", .{});
         } else {
