@@ -114,6 +114,9 @@ fn buildLib(b: *std.Build, module: *std.Build.Module, options: anytype) !*std.Bu
         .root = upstream.path("src"),
         .files = srcs,
         .flags = &.{
+            "-Os",
+            "-march=native",
+
             b.fmt("-DGTK_LAYER_SHELL_MAJOR={}", .{version.major}),
             b.fmt("-DGTK_LAYER_SHELL_MINOR={}", .{version.minor}),
             b.fmt("-DGTK_LAYER_SHELL_MICRO={}", .{version.patch}),

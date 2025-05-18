@@ -102,10 +102,16 @@ fn buildLib(b: *std.Build, module: *std.Build.Module, options: anytype) !*std.Bu
     var flags = std.ArrayList([]const u8).init(b.allocator);
     defer flags.deinit();
     try flags.appendSlice(&.{
+        "-Os",
+        "-march=native",
+
         "-DHAVE_STDBOOL_H",
     });
     if (target.result.os.tag != .windows) {
         try flags.appendSlice(&.{
+            "-Os",
+            "-march=native",
+
             "-DHAVE_UNISTD_H",
             "-DHAVE_SYS_MMAN_H",
             "-DHAVE_PTHREAD=1",

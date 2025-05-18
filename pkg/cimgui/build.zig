@@ -55,6 +55,9 @@ pub fn build(b: *std.Build) !void {
     var flags = std.ArrayList([]const u8).init(b.allocator);
     defer flags.deinit();
     try flags.appendSlice(&.{
+        "-Os",
+        "-march=native",
+
         "-DCIMGUI_FREETYPE=1",
         "-DIMGUI_USE_WCHAR32=1",
         "-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1",

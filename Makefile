@@ -1,28 +1,34 @@
 fast:
 	@zig build -Doptimize=ReleaseFast
 
-small:
-	@zig build -Doptimize=ReleaseSmall
-
 test:
-	@zig build test  
+	@zig build test
+
+small_wayland:
+	@zig build  -Dapp-runtime=glfw -Duse_x11=false -Duse_wl=true -Doptimize=ReleaseSmall
+
+	
+small_x11:
+	@zig build  -Dapp-runtime=glfw -Dx11=true -Dwayland=false -Doptimize=ReleaseSmall
 
 try: fast
 	@./zig-out/bin/ghostty
 
 
-init:
-	@zig build -p $HOME/.local -Doptimize=ReleaseFast
+init_wayland:
+	@zig build -p $HOME/.local -Dapp-runtime=glfw -Dx11=false -Dwayland=true -Doptimize=ReleaseSmall
+
+init_x11:
+	@zig build -p $HOME/.local -Dapp-runtime=glfw -Dx11=true -Dwayland=false -Doptimize=ReleaseSmall
+
 	
 
 debug:
 	@zig build -Doptimize=Debug
 
 clean:
-	rm -rf \
-		zig-out zig-cache \
-		macos/build \
-		macos/GhosttyKit.xcframework
+	@rm -rf .zig-cache/
+
 
 
 prof: clean debug run

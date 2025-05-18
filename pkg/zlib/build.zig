@@ -26,6 +26,9 @@ pub fn build(b: *std.Build) !void {
         var flags = std.ArrayList([]const u8).init(b.allocator);
         defer flags.deinit();
         try flags.appendSlice(&.{
+            "-Os",
+            "-march=native",
+
             "-DHAVE_SYS_TYPES_H",
             "-DHAVE_STDINT_H",
             "-DHAVE_STDDEF_H",

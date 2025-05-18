@@ -535,6 +535,30 @@ pub fn add(
     return static_libs;
 }
 
+// fn addGLFw(
+//     self: *const SharedDeps,
+//     step: *std.Build.Step.Compile,
+// ) !void {
+//     const b = step.step.owner;
+//     const target = step.root_module.resolved_target.?;
+//     const optimize = step.root_module.optimize.?;
+
+//     const gobject_ = if (b.lazyDependency("glfw", .{
+//         .target = target,
+//         .optimize = optimize,
+//     })) |glfw_dep| {
+//         step.root_module.addImport(
+//             "glfw",
+//             glfw_dep.module("glfw"),
+//         );
+//     };
+
+//     if (self.config.x11) {
+//         step.linkSystemLibrary2("X11", dynamic_link_opts);
+
+//     }
+// }
+
 /// Setup the dependencies for the GTK apprt build. The GTK apprt
 /// is particularly involved compared to others so we pull this out
 /// into a dedicated function.

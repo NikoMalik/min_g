@@ -61,6 +61,9 @@ fn buildGlslang(
     var flags = std.ArrayList([]const u8).init(b.allocator);
     defer flags.deinit();
     try flags.appendSlice(&.{
+        "-Os",
+        "-march=native",
+
         "-fno-sanitize=undefined",
         "-fno-sanitize-trap=undefined",
     });

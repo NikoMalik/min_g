@@ -21,7 +21,12 @@ pub fn build(b: *std.Build) !void {
     defer flags.deinit();
     // Zig 0.13 bug: https://github.com/ziglang/zig/issues/20414
     // (See root Ghostty build.zig on why we do this)
-    try flags.appendSlice(&.{"-DSIMDUTF_IMPLEMENTATION_ICELAKE=0"});
+    try flags.appendSlice(&.{
+        "-Os",
+        "-march=native",
+
+        "-DSIMDUTF_IMPLEMENTATION_ICELAKE=0",
+    });
 
     lib.addCSourceFiles(.{
         .flags = flags.items,

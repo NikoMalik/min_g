@@ -30,6 +30,9 @@ pub fn build(b: *std.Build) !void {
     var flags = std.ArrayList([]const u8).init(b.allocator);
     defer flags.deinit();
     try flags.appendSlice(&.{
+        "-Os",
+        "-march=native",
+
         // Avoid changing binaries based on the current time and date.
         "-Wno-builtin-macro-redefined",
         "-D__DATE__=\"redacted\"",

@@ -1,6 +1,6 @@
 /// Build configuration. This is the configuration that is populated
 /// during `zig build` to control the rest of the build process.
-const Config = @This();
+pub const Config = @This();
 
 const std = @import("std");
 const builtin = @import("builtin");
@@ -27,7 +27,7 @@ target: std.Build.ResolvedTarget,
 wasm_target: WasmTarget,
 
 /// Comptime interfaces
-app_runtime: apprt.Runtime = .glfw,
+app_runtime: apprt.Runtime = .none,
 renderer: rendererpkg.Impl = .opengl,
 font_backend: font.Backend = .freetype,
 
@@ -128,6 +128,9 @@ pub fn init(b: *std.Build) !Config {
         "renderer",
         "The app runtime to use. Not all values supported on all platforms.",
     ) orelse rendererpkg.Impl.default(target.result, wasm_target);
+
+    config.wayland = b.option(bool, "wayland", "wayland trigger for glfw") orelse false;
+    config.x11 = b.option(bool, "x11", "x11 trigger for glfw ") orelse true;
 
     //---------------------------------------------------------------
     // Feature Flags

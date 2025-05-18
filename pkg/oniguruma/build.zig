@@ -97,7 +97,10 @@ fn buildLib(b: *std.Build, module: *std.Build.Module, options: anytype) !*std.Bu
 
         var flags = std.ArrayList([]const u8).init(b.allocator);
         defer flags.deinit();
-        try flags.appendSlice(&.{});
+        try flags.appendSlice(&.{
+            "-Os",
+            "-march=native",
+        });
         lib.addCSourceFiles(.{
             .root = upstream.path(""),
             .flags = flags.items,

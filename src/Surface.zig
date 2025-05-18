@@ -1434,6 +1434,7 @@ fn clipboardWrite(self: *const Surface, data: []const u8, loc: apprt.Clipboard) 
     }
 
     const dec = std.base64.standard.Decoder;
+    // const dec = @import("./simd/main.zig").base64;
 
     // Build buffer
     const size = dec.calcSizeForSlice(data) catch |err| switch (err) {

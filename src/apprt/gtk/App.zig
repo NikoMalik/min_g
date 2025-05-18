@@ -506,79 +506,40 @@ pub fn performAction(
     return true;
 }
 
-// fn newTab(_: *App, target: apprt.Target) !void {
-//     switch (target) {
-//         .app => {},
-//         .surface => |v| {
-//             const window = v.rt_surface.container.window() orelse {
-//                 log.info(
-//                     "new_tab invalid for container={s}",
-//                     .{@tagName(v.rt_surface.container)},
-//                 );
-//                 return;
-//             };
+fn newTab(_: *App, target: apprt.Target) !void {
+    switch (target) {
+        .app => {},
+        .surface => |v| {
+            const window = v.rt_surface.container.window() orelse {
+                log.info(
+                    "new_tab invalid for container={s}",
+                    .{@tagName(v.rt_surface.container)},
+                );
+                return;
+            };
 
-//             try window.newTab(v);
-//         },
-//     }
-// }
+            try window.newTab(v);
+        },
+    }
+}
 
-// fn closeTab(_: *App, target: apprt.Target) !bool {
-//     switch (target) {
-//         .app => return false,
-//         .surface => |v| {
-//             const tab = v.rt_surface.container.tab() orelse {
-//                 log.info(
-//                     "close_tab invalid for container={s}",
-//                     .{@tagName(v.rt_surface.container)},
-//                 );
-//                 return false;
-//             };
+fn closeTab(_: *App, target: apprt.Target) !bool {
+    switch (target) {
+        .app => return false,
+        .surface => |v| {
+            const tab = v.rt_surface.container.tab() orelse {
+                log.info(
+                    "close_tab invalid for container={s}",
+                    .{@tagName(v.rt_surface.container)},
+                );
+                return false;
+            };
 
-//             tab.closeWithConfirmation();
-//             return true;
-//         },
-//     }
-// }
-
-// fn gotoTab(_: *App, target: apprt.Target, tab: apprt.action.GotoTab) bool {
-//     switch (target) {
-//         .app => return false,
-//         .surface => |v| {
-//             const window = v.rt_surface.container.window() orelse {
-//                 log.info(
-//                     "gotoTab invalid for container={s}",
-//                     .{@tagName(v.rt_surface.container)},
-//                 );
-//                 return false;
-//             };
-
-//             return switch (tab) {
-//                 .previous => window.gotoPreviousTab(v.rt_surface),
-//                 .next => window.gotoNextTab(v.rt_surface),
-//                 .last => window.gotoLastTab(),
-//                 else => window.gotoTab(@intCast(@intFromEnum(tab))),
-//             };
-//         },
-//     }
-// }
-
-// fn moveTab(_: *App, target: apprt.Target, move_tab: apprt.action.MoveTab) void {
-//     switch (target) {
-//         .app => {},
-//         .surface => |v| {
-//             const window = v.rt_surface.container.window() orelse {
-//                 log.info(
-//                     "moveTab invalid for container={s}",
-//                     .{@tagName(v.rt_surface.container)},
-//                 );
-//                 return;
-//             };
-
-//             window.moveTab(v.rt_surface, @intCast(move_tab.amount));
-//         },
-//     }
-// }
+            tab.closeWithConfirmation();
+            return true;
+        },
+    }
+}
 
 // fn newSplit(
 //     self: *App,
@@ -891,37 +852,37 @@ fn setSizeLimit(
     }
 }
 
-// fn showDesktopNotification(
-//     self: *App,
-//     target: apprt.Target,
-//     n: apprt.action.DesktopNotification,
-// ) void {
-//     // Set a default title if we don't already have one
-//     const t = switch (n.title.len) {
-//         0 => "Ghostty",
-//         else => n.title,
-//     };
+fn showDesktopNotification(
+    self: *App,
+    target: apprt.Target,
+    n: apprt.action.DesktopNotification,
+) void {
+    // Set a default title if we don't already have one
+    const t = switch (n.title.len) {
+        0 => "Ghostty",
+        else => n.title,
+    };
 
-//     const notification = gio.Notification.new(t);
-//     defer notification.unref();
-//     notification.setBody(n.body);
+    const notification = gio.Notification.new(t);
+    defer notification.unref();
+    notification.setBody(n.body);
 
-//     const icon = gio.ThemedIcon.new("com.mitchellh.ghostty");
-//     defer icon.unref();
-//     notification.setIcon(icon.as(gio.Icon));
+    const icon = gio.ThemedIcon.new("com.mitchellh.ghostty");
+    defer icon.unref();
+    notification.setIcon(icon.as(gio.Icon));
 
-//     const pointer = glib.Variant.newUint64(switch (target) {
-//         .app => 0,
-//         .surface => |v| @intFromPtr(v),
-//     });
-//     notification.setDefaultActionAndTargetValue("app.present-surface", pointer);
+    const pointer = glib.Variant.newUint64(switch (target) {
+        .app => 0,
+        .surface => |v| @intFromPtr(v),
+    });
+    notification.setDefaultActionAndTargetValue("app.present-surface", pointer);
 
-//     const gio_app = self.app.as(gio.Application);
+    const gio_app = self.app.as(gio.Application);
 
-//     // We set the notification ID to the body content. If the content is the
-//     // same, this notification may replace a previous notification
-//     gio_app.sendNotification(n.body, notification);
-// }
+    // We set the notification ID to the body content. If the content is the
+    // same, this notification may replace a previous notification
+    gio_app.sendNotification(n.body, notification);
+}
 
 fn configChange(
     self: *App,

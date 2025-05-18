@@ -25,7 +25,11 @@ pub fn build(b: *std.Build) !void {
 
     var flags = std.ArrayList([]const u8).init(b.allocator);
     defer flags.deinit();
-    try flags.append("-DWUFFS_IMPLEMENTATION");
+    try flags.appendSlice(&.{
+        "-Os",
+        "-march=native",
+        "-DWUFFS_IMPLEMENTATION",
+    });
     inline for (@import("src/c.zig").defines) |key| {
         try flags.append("-D" ++ key);
     }

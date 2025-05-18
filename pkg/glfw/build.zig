@@ -55,17 +55,10 @@ fn buildLib(
     const target = options.target;
     const optimize = options.optimize;
 
-    const use_x11 = b.option(
-        bool,
-        "x11",
-        "Build with X11. Only useful on Linux",
-    ) orelse true;
-    const use_wl = b.option(
-        bool,
-        "wayland",
-        "Build with Wayland. Only useful on Linux",
-    ) orelse true;
+    // const use_x11 =config.x11
 
+    const use_x11 = if (@hasField(@TypeOf(options), "x11")) options.x11 else true;
+    const use_wl = if (@hasField(@TypeOf(options), "wayland")) options.wayland else false;
     const use_opengl = b.option(
         bool,
         "opengl",
@@ -82,7 +75,7 @@ fn buildLib(
         "Build with Metal; only supported on MacOS",
     ) orelse true;
 
-    const lib = b.addStaticLibrary(.{
+    const lib = b.addSharedLibrary(.{
         .name = "glfw",
         .target = target,
         .optimize = optimize,
@@ -108,7 +101,12 @@ fn buildLib(
                 lib.linkSystemLibrary("GLESv3");
             }
 
-            const flags = [_][]const u8{"-D_GLFW_WIN32"};
+            const flags = [_][]const u8{
+                "-Os",
+                "-march=native",
+
+                "-D_GLFW_WIN32",
+            };
             lib.addCSourceFiles(.{
                 .root = upstream.path(""),
                 .files = &base_sources,
@@ -168,6 +166,10 @@ fn buildLib(
             var sources = std.BoundedArray([]const u8, 64).init(0) catch unreachable;
             var flags = std.BoundedArray([]const u8, 16).init(0) catch unreachable;
 
+            try flags.appendSlice(&.{
+                "-Os",
+                "-march=native",
+            });
             sources.appendSlice(&base_sources) catch unreachable;
             sources.appendSlice(&linux_sources) catch unreachable;
 

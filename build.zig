@@ -24,9 +24,9 @@ pub fn build(b: *std.Build) !void {
     // const docs = try buildpkg.GhosttyDocs.init(b, &deps);
     // if (config.emit_docs) docs.install();
 
-    // // Ghostty webdata
-    // const webdata = try buildpkg.GhosttyWebdata.init(b, &deps);
-    // if (config.emit_webdata) webdata.install();
+    // Ghostty webdata
+    const webdata = try buildpkg.GhosttyWebdata.init(b, &deps);
+    if (config.emit_webdata) webdata.install();
 
     // // Ghostty bench tools
     // const bench = try buildpkg.GhosttyBench.init(b, &deps);

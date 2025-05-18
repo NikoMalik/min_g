@@ -18,7 +18,10 @@ pub fn build(b: *std.Build) !void {
 
     var flags = std.ArrayList([]const u8).init(b.allocator);
     defer flags.deinit();
-    try flags.appendSlice(&.{});
+    try flags.appendSlice(&.{
+        "-Os",
+        "-march=native",
+    });
 
     lib.addCSourceFiles(.{
         .flags = flags.items,
