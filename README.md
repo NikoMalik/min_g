@@ -39,11 +39,117 @@ compatible with all existing shells and software while supporting all of
 the latest terminal innovations in the ecosystem. You can use Ghostty
 as a drop-in replacement for your existing terminal emulator.
 
+
+## Bench GLFW
+
+
+
+```
+Results: glfw-ghostty
+
+  cursor_motion (79 samples @ 2.2 MiB):
+    126.66ms avg (90% < 131ms) +-6.39ms
+
+  dense_cells (28 samples @ 6.44 MiB):
+    369.57ms avg (90% < 379ms) +-5.27ms
+
+  light_cells (406 samples @ 1.19 MiB):
+    24.12ms avg (90% < 25ms) +-2.06ms
+
+  medium_cells (147 samples @ 1.02 MiB):
+    67.54ms avg (90% < 76ms) +-4.7ms
+
+  scrolling (37 samples @ 1 MiB):
+    228.78ms avg (90% < 279ms) +-39.04ms
+
+  scrolling_bottom_region (42 samples @ 1 MiB):
+    240.33ms avg (90% < 287ms) +-41.48ms
+
+  scrolling_bottom_small_region (31 samples @ 1 MiB):
+    324.35ms avg (90% < 359ms) +-24.82ms
+
+  scrolling_fullscreen (147 samples @ 1 MiB):
+    24.18ms avg (90% < 29ms) +-3.59ms
+
+  scrolling_top_region (34 samples @ 1 MiB):
+    295.97ms avg (90% < 346ms) +-31.98ms
+
+  scrolling_top_small_region (36 samples @ 1 MiB):
+    283.22ms avg (90% < 330ms) +-27.07ms
+
+  sync_medium_cells (146 samples @ 1.06 MiB):
+    68.3ms avg (90% < 73ms) +-2.34ms
+
+  unicode (425 samples @ 1.06 MiB):
+    23ms avg (90% < 26ms) +-2.75ms
+
+```
+
+```
+
+Results: st-terminal
+
+  cursor_motion (395 samples @ 1.6 MiB):
+    24.86ms avg (90% < 29ms) +-2.77ms
+
+  dense_cells (18 samples @ 4.77 MiB):
+    572.22ms avg (90% < 826ms) +-149.29ms
+
+  light_cells (555 samples @ 1.1 MiB):
+    17.53ms avg (90% < 20ms) +-1.66ms
+
+  medium_cells (194 samples @ 1.02 MiB):
+    51.2ms avg (90% < 53ms) +-4.02ms
+
+  scrolling (39 samples @ 1 MiB):
+    221ms avg (90% < 283ms) +-41.65ms
+
+  scrolling_bottom_region (51 samples @ 1 MiB):
+    196.31ms avg (90% < 251ms) +-46.26ms
+
+  scrolling_bottom_small_region (65 samples @ 1 MiB):
+    154.45ms avg (90% < 201ms) +-31.26ms
+
+  scrolling_fullscreen (163 samples @ 1 MiB):
+    21.13ms avg (90% < 25ms) +-3.11ms
+
+  scrolling_top_region (69 samples @ 1 MiB):
+    144.93ms avg (90% < 195ms) +-29.99ms
+
+  scrolling_top_small_region (66 samples @ 1 MiB):
+    153.27ms avg (90% < 197ms) +-32.21ms
+
+  sync_medium_cells (150 samples @ 1.06 MiB):
+    66.17ms avg (90% < 69ms) +-3.74ms
+
+  unicode (25 samples @ 1.06 MiB):
+    415.88ms avg (90% < 1307ms) +-549.36ms
+
+  
+```
+  
+
 For more details, see [About Ghostty](https://ghostty.org/docs/about).
 
 ## Download
 
-See the [download page](https://ghostty.org/download) on the Ghostty website.
+
+ADD to your bash
+
+```
+
+export PATH=$PATH:$HOME/yourname/.local/bin
+  
+```
+
+
+```
+for wayland: make init_wayland
+
+for x11: make init_x11
+
+```
+
 
 ## Documentation
 
